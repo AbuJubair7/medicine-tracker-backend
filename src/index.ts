@@ -1,12 +1,26 @@
-import { CONFIG, server, routes, services, controllers } from "./main";
+import "reflect-metadata";
+import { server, routes, services, controllers } from "./main";
 import express from "express";
+import { AppDataSource } from "./database/data-source";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const app = {
   server,
   routes,
   services,
   controllers,
-  init: (): void => {
+  init: async (): Promise<void> => {
+    // Initialize database connection
+    try {
+      await AppDataSource.initialize();
+      console.log("Database connected successfully!");
+    } catch (error) {
+      console.error("Error connecting to database:", error);
+      process.exit(1);
+    }
+
     app.server.use(express.json());
     app.server.use(express.urlencoded({ extended: true }));
     // use routes
@@ -18,8 +32,8 @@ const app = {
       controller.activateRoutes(),
     );
     // start server
-    app.server.listen(CONFIG.PORT, () => {
-      console.log(`Server is running on port ${CONFIG.PORT}`);
+    app.server.listen(process.env.PORT, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
     });
   },
 };

@@ -6,10 +6,6 @@ import UserServices from "./module/user/userServices";
 import ProductServices from "./module/product/productServices";
 import ProductController from "./module/product/productController";
 
-export const CONFIG = {
-  PORT: 3000,
-};
-
 export const server = express();
 
 // decalre routes here
@@ -27,5 +23,8 @@ export const services = {
 export const controllers = {
   appController: new AppController(services.appServices, server),
   userController: new UserController(services.userServices, routes["/user"]),
-  productController: new ProductController(services.productServices, routes["/product"]),
+  productController: new ProductController(
+    services.productServices,
+    routes["/product"],
+  ),
 };

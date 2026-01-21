@@ -5,9 +5,13 @@
     "start:compiled": "npm run build && node dist/index.js"
   },
   "dependencies": {
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "express": "^5.2.1",
     "nodemon": "^3.1.11",
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

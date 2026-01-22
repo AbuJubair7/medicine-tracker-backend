@@ -23,12 +23,7 @@ export default class UserServices {
     userData.password = await bcrypt.hash(userData.password, 10);
     const user = this.userRepository.create(userData);
     await this.userRepository.save(user);
-    const token = jwt.sign(
-      { userId: user.id, email: user.email },
-      process.env.JWT_SECRET || "fallback-secret",
-      { expiresIn: process.env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"] },
-    );
-    return token;
+    return this.createToken({ id: user.id, email: user.email });
   };
 
   // Get all users
@@ -51,6 +46,10 @@ export default class UserServices {
     if (!isValid) {
       throw new Error("Invalid id or password");
     }
+    return this.createToken({ id: user.id, email: user.email });
+  };
+
+  createToken = (user: { id: number; email: string }): string => {
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET || "fallback-secret",

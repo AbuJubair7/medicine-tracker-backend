@@ -1,5 +1,9 @@
 {
   "scripts": {
+    "migration:create": "npm run build && npx typeorm migration:create src/database/migrations/$npm_config_name",
+    "migration:generate": "npm run build && npx typeorm migration:generate src/database/migrations/$npm_config_name -d dist/database/data-source.js",
+    "migration:run": "npm run build && npx typeorm migration:run -d dist/database/data-source.js",
+    "migration:revert": "npm run build && npx typeorm migration:revert -d dist/database/data-source.js",
     "build": "tsc",
     "start": "nodemon --watch src --ext ts --exec \"npm run start:compiled\"",
     "start:compiled": "npm run build && node dist/index.js"

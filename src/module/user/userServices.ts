@@ -1,6 +1,9 @@
 import { AppDataSource } from "../../database/data-source";
 import { User } from "./userEntity";
-import { UserDTO } from "./user.dto";
+import { CreateUserDTO } from "./dto/createUser.dto";
+import bcrypt from "bcryptjs";
+import { LoginUserDTO } from "./dto/loginUser.DTO";
+import jwt from "jsonwebtoken";
 
 export default class UserServices {
   private userRepository = AppDataSource.getRepository(User);
@@ -10,18 +13,49 @@ export default class UserServices {
   };
 
   // Create a new user
-  createUser = async (userData: UserDTO): Promise<User> => {
+  createUser = async (userData: CreateUserDTO): Promise<User | any> => {
+    const duplicateUser = await this.userRepository.findOneBy({
+      email: userData.email,
+    });
+    if (duplicateUser) {
+      throw new Error("Email already in use");
+    }
+    userData.password = await bcrypt.hash(userData.password, 10);
     const user = this.userRepository.create(userData);
-    return await this.userRepository.save(user);
+    await this.userRepository.save(user);
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || "fallback-secret",
+      { expiresIn: process.env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"] },
+    );
+    return token;
   };
 
   // Get all users
-  getAllUsers = async (): Promise<User[]> => {
+  getAllUsers = async (): Promise<User[] | null> => {
     return await this.userRepository.find();
   };
 
   // Get user by ID
   getUserById = async (id: number): Promise<User | null> => {
     return await this.userRepository.findOneBy({ id });
+  };
+
+  // User login
+  loginUser = async (userData: LoginUserDTO): Promise<User | any> => {
+    const user = await this.userRepository.findOneBy({ email: userData.email });
+    if (!user) {
+      throw new Error("Invalid id or password");
+    }
+    const isValid = await bcrypt.compare(userData.password, user.password);
+    if (!isValid) {
+      throw new Error("Invalid id or password");
+    }
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || "fallback-secret",
+      { expiresIn: process.env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"] },
+    );
+    return token;
   };
 }

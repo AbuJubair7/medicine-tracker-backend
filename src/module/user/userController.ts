@@ -1,7 +1,9 @@
 import { Request, Response, Router } from "express";
 import UserServices from "./userServices";
 import { validateDTO } from "../../middleware/validateDTO";
-import { UserDTO } from "./user.dto";
+import { CreateUserDTO } from "./dto/createUser.dto";
+import { LoginUserDTO } from "./dto/loginUser.DTO";
+import { verifyToken } from "../../middleware/authMiddleware";
 
 export default class UserController {
   constructor(
@@ -15,8 +17,8 @@ export default class UserController {
 
     // Create a new user (with validation middleware)
     this.app.post(
-      "/",
-      validateDTO(UserDTO),
+      "/signup",
+      validateDTO(CreateUserDTO),
       async (req: Request, res: Response) => {
         try {
           const { name, email, password } = req.body;
@@ -25,15 +27,34 @@ export default class UserController {
             email,
             password,
           });
-          res.status(201).json(user);
-        } catch (error) {
-          res.status(500).json({ error: "Failed to create user" });
+          res.status(201).json({ token: user });
+        } catch (error: any) {
+          res.status(500).json({ error: error.message });
+        }
+      },
+    );
+    // User login (with validation middleware)
+    this.app.post(
+      "/login",
+      validateDTO(LoginUserDTO),
+      async (req: Request, res: Response) => {
+        try {
+          const { email, password } = req.body;
+          const user = await this.services.loginUser({
+            email,
+            password,
+          });
+          res.status(200).json({ token: user });
+        } catch (error: any) {
+          res.status(500).json({
+            error: error.message,
+          });
         }
       },
     );
 
     // Get all users
-    this.app.get("/all", async (req: Request, res: Response) => {
+    this.app.get("/all", verifyToken, async (req: Request, res: Response) => {
       try {
         const users = await this.services.getAllUsers();
         res.json(users);
@@ -43,7 +64,7 @@ export default class UserController {
     });
 
     // Get user by ID
-    this.app.get("/:id", async (req: Request, res: Response) => {
+    this.app.get("/:id", verifyToken, async (req: Request, res: Response) => {
       try {
         const user = await this.services.getUserById(Number(req.params.id));
         if (user) {

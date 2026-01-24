@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || "postgres",
   password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "test-db",
-  synchronize: process.env.NODE_ENV === "development", // Auto-create tables (disable in production)
+  synchronize: false, // Auto-create tables (disable in production)
   logging: false,
   entities: [User, Stock, Medicine], // declare entities here
   subscribers: [],

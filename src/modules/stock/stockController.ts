@@ -115,5 +115,41 @@ export class StockController {
         }
       },
     );
+
+    // update medicine in stock
+    this.app.patch(
+      "/medicine/:medicineId",
+      verifyToken,
+      async (req: Request, res: Response) => {
+        const medicineId = Number(req.params.medicineId);
+        const medicineData = req.body;
+        try {
+          const updatedMedicine =
+            await this.stockServices.updateMedicineInStock(
+              medicineId,
+              medicineData,
+            );
+          res.json(updatedMedicine);
+        } catch (error: any) {
+          res.status(500).json({ error: error.message });
+        }
+      },
+    );
+
+    // delete medicine from stock
+    this.app.delete(
+      "/medicine/:medicineId",
+      verifyToken,
+      async (req: Request, res: Response) => {
+        const medicineId = Number(req.params.medicineId);
+        try {
+          const result =
+            await this.stockServices.deleteMedicineFromStock(medicineId);
+          res.json(result);
+        } catch (error: any) {
+          res.status(500).json({ error: error.message });
+        }
+      },
+    );
   };
 }

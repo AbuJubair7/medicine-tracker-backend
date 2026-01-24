@@ -24,10 +24,11 @@ const app = {
     app.server.use(express.json());
     app.server.use(express.urlencoded({ extended: true }));
     // use routes
-    Object.entries(app.routes).forEach(([path, route]) =>
-      app.server.use(path, route),
-    );
-    // activate routes
+    Object.entries(app.routes).forEach(([path, route]) => {
+      console.log(`[DEBUG] Registering route: ${path}`);
+      app.server.use(path, route);
+    });
+    // activate routes in controllers
     Object.values(app.controllers).forEach((controller) =>
       controller.activateRoutes(),
     );

@@ -1,15 +1,17 @@
 import { AppDataSource } from "../../database/data-source";
-import { User } from "./userEntity";
+import { User } from "./entities/userEntity";
 import { CreateUserDTO } from "./dto/createUser.dto";
 import bcrypt from "bcryptjs";
-import { LoginUserDTO } from "./dto/loginUser.DTO";
 import jwt from "jsonwebtoken";
+import { LoginUserDTO } from "./dto/loginUser.dto";
 
 export default class UserServices {
-  private userRepository = AppDataSource.getRepository(User);
+  constructor(
+    private readonly userRepository = AppDataSource.getRepository(User),
+  ) {}
 
   userGreet = (): string => {
-    return "Hello this is User";
+    return "User page";
   };
 
   // Create a new user
@@ -40,11 +42,11 @@ export default class UserServices {
   loginUser = async (userData: LoginUserDTO): Promise<User | any> => {
     const user = await this.userRepository.findOneBy({ email: userData.email });
     if (!user) {
-      throw new Error("Invalid id or password");
+      throw new Error("Invalid email or password");
     }
     const isValid = await bcrypt.compare(userData.password, user.password);
     if (!isValid) {
-      throw new Error("Invalid id or password");
+      throw new Error("Invalid email or password");
     }
     return this.createToken({ id: user.id, email: user.email });
   };

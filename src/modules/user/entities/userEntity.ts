@@ -4,7 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from "typeorm";
+import { Stock } from "../../stock/entities/stockEntity";
 
 @Entity("users")
 export class User {
@@ -25,4 +27,7 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @OneToMany(() => Stock, (stock) => stock.user)
+  stocks!: Stock[];
 }

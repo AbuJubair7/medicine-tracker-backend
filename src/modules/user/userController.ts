@@ -2,14 +2,15 @@ import { Request, Response, Router } from "express";
 import UserServices from "./userServices";
 import { validateDTO } from "../../middleware/validateDTO";
 import { CreateUserDTO } from "./dto/createUser.dto";
-import { LoginUserDTO } from "./dto/loginUser.DTO";
 import { verifyToken } from "../../middleware/authMiddleware";
+import { LoginUserDTO } from "./dto/loginUser.dto";
 
 export default class UserController {
   constructor(
     private readonly services: UserServices,
     private readonly app: Router,
   ) {}
+
   activateRoutes = (): void => {
     this.app.get("/", (req: Request, res: Response) => {
       res.send(this.services.userGreet());
@@ -44,7 +45,7 @@ export default class UserController {
             email,
             password,
           });
-          res.status(200).json({ token: user });
+          res.status(200).json(user);
         } catch (error: any) {
           res.status(500).json({
             error: error.message,

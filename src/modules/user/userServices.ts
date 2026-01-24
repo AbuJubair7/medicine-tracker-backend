@@ -53,7 +53,7 @@ export default class UserServices {
 
   createToken = (user: { id: number; email: string }): string => {
     const token = jwt.sign(
-      { userId: user.id, email: user.email },
+      { id: user.id, email: user.email },
       process.env.JWT_SECRET || "fallback-secret",
       { expiresIn: process.env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"] },
     );

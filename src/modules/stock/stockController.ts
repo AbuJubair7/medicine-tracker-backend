@@ -3,6 +3,7 @@ import { StockServices } from "./stockServices";
 import { verifyToken } from "../../middleware/authMiddleware";
 import { validateDTO } from "../../middleware/validateDTO";
 import { StockDTO } from "./dto/stock.dto";
+import { MedicineDTO } from "./dto/medicine.dto";
 
 export class StockController {
   constructor(
@@ -21,8 +22,12 @@ export class StockController {
       validateDTO(StockDTO),
       async (req: Request, res: Response) => {
         try {
+          const userId = res.locals.user.id;
           const stockData = req.body;
-          const result = await this.stockServices.createStock(stockData);
+          const result = await this.stockServices.createStock(
+            userId,
+            stockData,
+          );
           res.status(201).json(result);
         } catch (error: any) {
           res.status(500).json({ error: error.message });
@@ -31,11 +36,11 @@ export class StockController {
     );
 
     this.app.get(
-      "/getAll/:userId",
+      "/getAll",
       verifyToken,
       async (req: Request, res: Response) => {
-        const userId = Number(req.params.userId);
         try {
+          const userId = res.locals.user.id;
           const stocks = await this.stockServices.getStocksByUserId(userId);
           res.json(stocks);
         } catch (error: any) {
@@ -55,6 +60,25 @@ export class StockController {
             return res.status(404).json({ error: "Stock not found" });
           }
           res.json(stock);
+        } catch (error: any) {
+          res.status(500).json({ error: error.message });
+        }
+      },
+    );
+
+    this.app.post(
+      "/insertMedicine/:id",
+      verifyToken,
+      validateDTO(MedicineDTO),
+      async (req: Request, res: Response) => {
+        const stockId = Number(req.params.id);
+        const medicineData = req.body;
+        try {
+          const updatedStock = await this.stockServices.insertMedicineToStock(
+            stockId,
+            medicineData,
+          );
+          res.json(updatedStock);
         } catch (error: any) {
           res.status(500).json({ error: error.message });
         }

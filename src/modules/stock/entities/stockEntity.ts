@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -16,9 +17,12 @@ export class Stock {
   @Column({ type: "varchar", length: 100 })
   name!: string;
 
-  @ManyToOne(() => User, (user) => user.stocks)
+  @ManyToOne(() => User, (user) => user.stocks, { onDelete: "CASCADE" })
   user!: User;
 
-  @OneToMany(() => Medicine, (medicine) => medicine.stock)
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @OneToMany(() => Medicine, (medicine) => medicine.stock, { cascade: true })
   medicines!: Medicine[];
 }

@@ -66,6 +66,7 @@ export class StockController {
       },
     );
 
+    //insert medicine to stock
     this.app.post(
       "/insertMedicine/:id",
       verifyToken,
@@ -79,6 +80,36 @@ export class StockController {
             medicineData,
           );
           res.json(updatedStock);
+        } catch (error: any) {
+          res.status(500).json({ error: error.message });
+        }
+      },
+    );
+
+    // update stock by id
+    this.app.patch("/:id", verifyToken, async (req: Request, res: Response) => {
+      const stockId = Number(req.params.id);
+      const stockData = req.body;
+      try {
+        const updatedStock = await this.stockServices.updateStockById(
+          stockId,
+          stockData,
+        );
+        res.json(updatedStock);
+      } catch (error: any) {
+        res.status(500).json({ error: error.message });
+      }
+    });
+
+    // delete stock by id
+    this.app.delete(
+      "/:id",
+      verifyToken,
+      async (req: Request, res: Response) => {
+        const stockId = Number(req.params.id);
+        try {
+          const result = await this.stockServices.deleteStockById(stockId);
+          res.json(result);
         } catch (error: any) {
           res.status(500).json({ error: error.message });
         }

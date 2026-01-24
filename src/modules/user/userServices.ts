@@ -51,6 +51,20 @@ export default class UserServices {
     return this.createToken({ id: user.id, email: user.email });
   };
 
+  // update user by id
+  updateUserById = async (
+    id: number,
+    userData: Partial<CreateUserDTO>,
+  ): Promise<User | null> => {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    this.userRepository.merge(user, userData);
+    return await this.userRepository.save(user);
+  };
+
+  // Generate JWT token
   createToken = (user: { id: number; email: string }): string => {
     const token = jwt.sign(
       { id: user.id, email: user.email },

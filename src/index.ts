@@ -3,6 +3,7 @@ import { server, routes, services, controllers } from "./main";
 import express from "express";
 import { AppDataSource } from "./database/data-source";
 import * as dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ const app = {
       process.exit(1);
     }
 
+    app.server.use(cors());
     app.server.use(express.json());
     app.server.use(express.urlencoded({ extended: true }));
     // use routes

@@ -54,6 +54,22 @@ export default class UserController {
       },
     );
 
+    // Google Login
+    this.app.post("/google-login", async (req: Request, res: Response) => {
+      try {
+        const { token } = req.body;
+        if (!token) {
+           return res.status(400).json({ error: "Token is required" });
+        }
+        const appToken = await this.services.googleLogin(token);
+        res.status(200).json({ token: appToken });
+      } catch (error: any) {
+        res.status(500).json({
+          error: error.message,
+        });
+      }
+    });
+
     // Get all users
     this.app.get("/all", verifyToken, async (req: Request, res: Response) => {
       try {

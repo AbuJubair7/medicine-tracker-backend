@@ -4,6 +4,7 @@ import { CreateUserDTO } from "./dto/createUser.dto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { LoginUserDTO } from "./dto/loginUser.dto";
+import { OAuth2Client } from "google-auth-library";
 
 export default class UserServices {
   constructor(
@@ -63,6 +64,43 @@ export default class UserServices {
     this.userRepository.merge(user, userData);
     return await this.userRepository.save(user);
   };
+
+  // Google Login
+  googleLogin = async (token: string): Promise<User | any> => {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload?.email) {
+      throw new Error("Invalid Google Token");
+    }
+
+    const { email, name, sub: googleId } = payload;
+
+    // Check if user exists
+    let user = await this.userRepository.findOneBy({ email });
+
+    if (user) {
+      if (!user.googleId) {
+        // Link google account if not linked (optional, or just update)
+        user.googleId = googleId;
+        await this.userRepository.save(user);
+      }
+    } else {
+      // Create new user
+      user = this.userRepository.create({
+        email,
+        name: name || "Google User",
+        googleId,
+        password: "", // No password for Google users
+      });
+      await this.userRepository.save(user);
+    }
+
+    return this.createToken({ id: user.id, email: user.email });
+  }; 
 
   // Generate JWT token
   createToken = (user: { id: number; email: string }): string => {

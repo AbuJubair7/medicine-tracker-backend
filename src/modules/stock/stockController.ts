@@ -49,8 +49,9 @@ export class StockController {
       },
     );
 
+    // get stock by id
     this.app.get(
-      "/get/:id",
+      "/:id",
       verifyToken,
       async (req: Request, res: Response) => {
         const stockId = Number(req.params.id);

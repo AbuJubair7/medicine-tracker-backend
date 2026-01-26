@@ -4,6 +4,7 @@ import { StockDTO } from "./dto/stock.dto";
 import { User } from "../user/entities/userEntity";
 import { MedicineDTO } from "./dto/medicine.dto";
 import { Medicine } from "./entities/medicineEntity";
+import { processAutoDeduction } from "../../helpers/deductionHelper";
 
 export class StockServices {
   constructor(
@@ -29,18 +30,40 @@ export class StockServices {
 
   // get stock by id
   getStockById = async (id: number): Promise<Stock | null> => {
-    return await this.stockRepository.findOne({
+    const stock = await this.stockRepository.findOne({
       where: { id },
       relations: ["medicines", "user"],
     });
+
+    if (stock && stock.medicines) {
+      // Process auto-deduction for all medicines
+      stock.medicines = await Promise.all(
+        stock.medicines.map((med) =>
+          processAutoDeduction(med, this.medicineRepository),
+        ),
+      );
+    }
+
+    return stock;
   };
 
   // get stocks by user id
   getStocksByUserId = async (userId: number): Promise<Stock[]> => {
-    return await this.stockRepository.find({
+    const stocks = await this.stockRepository.find({
       where: { user: { id: userId } },
       relations: ["medicines", "user"],
     });
+
+    // // Process auto-deduction for all medicines
+    // for (const stock of stocks) {
+    //    if (stock.medicines) {
+    //      stock.medicines = await Promise.all(
+    //        stock.medicines.map(med => processAutoDeduction(med, this.medicineRepository))
+    //      );
+    //    }
+    // }
+
+    return stocks;
   };
 
   //insert medicine to stock
@@ -57,6 +80,7 @@ export class StockServices {
     }
     const medicine = this.medicineRepository.create(medicineDto);
     medicine.stock = stock;
+    medicine.lastDeductedAt = new Date(); // Initialize timestamp
     await this.medicineRepository.save(medicine);
     // Optionally reload stock with medicines
     return await this.stockRepository.findOne({
@@ -100,6 +124,12 @@ export class StockServices {
       throw new Error("Medicine not found");
     }
     this.medicineRepository.merge(medicine, medicineDto);
+
+    // CRITICAL: Reset lastDeductedAt if quantity is updated manually
+    if (medicineDto.quantity !== undefined) {
+      medicine.lastDeductedAt = new Date();
+    }
+
     return await this.medicineRepository.save(medicine);
   };
 

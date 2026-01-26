@@ -33,6 +33,9 @@ export class Medicine {
   @CreateDateColumn()
   createdAt!: Date;
 
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  lastDeductedAt!: Date;
+
   @ManyToOne(() => Stock, (stock) => stock.medicines, { onDelete: "CASCADE" })
   stock!: Stock;
 }

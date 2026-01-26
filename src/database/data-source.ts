@@ -8,7 +8,8 @@ import { Medicine } from "../modules/stock/entities/medicineEntity";
 dotenv.config();
 
 export const AppDataSource = new DataSource({
-  type: (process.env.DB_TYPE as "postgres") || "postgres",
+  type: "postgres",
+  url: process.env.DATABASE_URL,
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "5432"),
   username: process.env.DB_USERNAME || "postgres",
@@ -19,4 +20,5 @@ export const AppDataSource = new DataSource({
   entities: [User, Stock, Medicine], // declare entities here
   subscribers: [],
   migrations: ["dist/database/migrations/*.js"],
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
 });

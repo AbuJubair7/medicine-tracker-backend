@@ -1,44 +1,49 @@
 import "reflect-metadata";
-import { server, routes, services, controllers } from "./main";
+import { server, routes, controllers } from "./main";
 import express from "express";
 import { AppDataSource } from "./database/data-source";
 import * as dotenv from "dotenv";
 import cors from "cors";
-
+import { Request, Response } from "express-serve-static-core";
 dotenv.config();
 
-const app = {
-  server,
-  routes,
-  services,
-  controllers,
-  init: async (): Promise<void> => {
-    // Initialize database connection
+let dataSourceInitialized = false;
+async function initializeApp() {
+  if (!dataSourceInitialized) {
     try {
+      // Initialize database connection
       await AppDataSource.initialize();
+      dataSourceInitialized = true;
       console.log("Database connected successfully!");
+      // Middleware setup
+      server.use(cors());
+      server.use(express.json());
+      server.use(express.urlencoded({ extended: true }));
+      // Use routes
+      Object.entries(routes).forEach(([path, route]) => {
+        server.use(path, route);
+      });
+      // Activate routes in controllers
+      Object.values(controllers).forEach((controller) =>
+        controller.activateRoutes(),
+      );
     } catch (error) {
       console.error("Error connecting to database:", error);
       process.exit(1);
     }
+  }
+}
+// Vercel serverless handler
+export default async function handler(req: Request, res: Response) {
+  await initializeApp();
+  server(req, res);
+}
 
-    app.server.use(cors());
-    app.server.use(express.json());
-    app.server.use(express.urlencoded({ extended: true }));
-    // use routes
-    Object.entries(app.routes).forEach(([path, route]) => {
-      console.log(`[DEBUG] Registering route: ${path}`);
-      app.server.use(path, route);
+// For local development: start server if run directly
+if (require.main === module) {
+  initializeApp().then(() => {
+    server.listen(process.env.PORT || 3000, () => {
+      console.log(`Server is running on port ${process.env.PORT || 3000}`);
     });
-    // activate routes in controllers
-    Object.values(app.controllers).forEach((controller) =>
-      controller.activateRoutes(),
-    );
-    // start server
-    app.server.listen(process.env.PORT, () => {
-      console.log(`Server is running on port ${process.env.PORT}`);
-    });
-  },
-};
-
-app.init();
+  });
+}

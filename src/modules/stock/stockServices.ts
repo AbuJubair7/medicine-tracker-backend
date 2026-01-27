@@ -5,6 +5,7 @@ import { User } from "../user/entities/userEntity";
 import { MedicineDTO } from "./dto/medicine.dto";
 import { Medicine } from "./entities/medicineEntity";
 import { processAutoDeduction } from "../../helpers/deductionHelper";
+import { DateUtil } from "../../utils/DateUtil";
 
 export class StockServices {
   constructor(
@@ -25,6 +26,7 @@ export class StockServices {
       throw new Error("User not found");
     }
     newStock.user = user;
+    newStock.createdAt = DateUtil.nowBD();
     return await this.stockRepository.save(newStock);
   };
 

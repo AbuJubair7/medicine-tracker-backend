@@ -1,5 +1,6 @@
 import { Repository } from "typeorm";
 import { Medicine } from "../modules/stock/entities/medicineEntity";
+import { DateUtil } from "../utils/DateUtil";
 
 const MORNING_TIME = 9;
 const AFTERNOON_TIME = 14;
@@ -9,7 +10,7 @@ export const processAutoDeduction = async (
   medicine: Medicine,
   medicineRepository: Repository<Medicine>,
 ): Promise<Medicine> => {
-  const now = new Date();
+  const now = DateUtil.nowBD();
   const lastCheck = new Date(medicine.lastDeductedAt);
 
   if (lastCheck >= now) return medicine;

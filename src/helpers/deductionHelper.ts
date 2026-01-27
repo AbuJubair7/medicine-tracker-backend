@@ -23,6 +23,9 @@ export const processAutoDeduction = async (
     targetHour: number,
   ): number => {
     const firstOccurrence = new Date(start);
+    if (firstOccurrence.getHours() < targetHour) {
+      firstOccurrence.setDate(firstOccurrence.getDate() - 1);
+    }
     firstOccurrence.setHours(targetHour, 0, 0, 0);
 
     if (firstOccurrence > end) return 0;

@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -10,6 +11,7 @@ import { Medicine } from "./medicineEntity";
 import { User } from "../../user/entities/userEntity";
 
 @Entity("stocks")
+@Index(["user", "id"])
 export class Stock {
   @PrimaryGeneratedColumn()
   id!: number;

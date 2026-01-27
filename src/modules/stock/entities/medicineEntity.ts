@@ -2,12 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Stock } from "./stockEntity";
 
 @Entity("medicines")
+@Index(["stock"])
 export class Medicine {
   @PrimaryGeneratedColumn()
   id!: number;

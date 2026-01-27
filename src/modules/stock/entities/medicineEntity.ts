@@ -9,7 +9,6 @@ import {
 import { Stock } from "./stockEntity";
 
 @Entity("medicines")
-@Index(["stock"])
 export class Medicine {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -39,5 +38,6 @@ export class Medicine {
   lastDeductedAt!: Date;
 
   @ManyToOne(() => Stock, (stock) => stock.medicines, { onDelete: "CASCADE" })
+  @Index("stock_idx")
   stock!: Stock;
 }

@@ -78,23 +78,15 @@ export class StockServices {
   insertMedicineToStock = async (
     id: number,
     medicineDto: MedicineDTO,
-  ): Promise<Stock | null> => {
-    const stock = await this.stockRepository.findOne({
-      where: { id },
-      relations: ["medicines"],
-    });
+  ): Promise<Medicine> => {
+    const stock = await this.stockRepository.findOne({where: { id }});
     if (!stock) {
       throw new Error("Stock not found");
     }
     const medicine = this.medicineRepository.create(medicineDto);
     medicine.stock = stock;
-    medicine.lastDeductedAt = new Date(); // Initialize timestamp
-    await this.medicineRepository.save(medicine);
-    // Optionally reload stock with medicines
-    return await this.stockRepository.findOne({
-      where: { id },
-      relations: ["medicines"],
-    });
+    medicine.lastDeductedAt = DateUtil.nowBD(); // Initialize timestamp
+    return await this.medicineRepository.save(medicine);
   };
 
   // update stock by id

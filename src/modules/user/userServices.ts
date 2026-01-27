@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { LoginUserDTO } from "./dto/loginUser.dto";
 import { OAuth2Client } from "google-auth-library";
+import { DateUtil } from "../../utils/DateUtil";
 
 export default class UserServices {
   constructor(
@@ -25,6 +26,8 @@ export default class UserServices {
     }
     userData.password = await bcrypt.hash(userData.password, 10);
     const user = this.userRepository.create(userData);
+    user.createdAt = DateUtil.nowBD();
+    user.updatedAt = DateUtil.nowBD();  
     await this.userRepository.save(user);
     return this.createToken({ id: user.id, email: user.email });
   };
@@ -61,6 +64,7 @@ export default class UserServices {
     if (!user) {
       throw new Error("User not found");
     }
+    user.updatedAt = DateUtil.nowBD();  
     this.userRepository.merge(user, userData);
     return await this.userRepository.save(user);
   };
@@ -94,6 +98,8 @@ export default class UserServices {
         email,
         name: name || "Google User",
         googleId,
+        createdAt: DateUtil.nowBD(),
+        updatedAt: DateUtil.nowBD(),  
         password: "", // No password for Google users
       });
       await this.userRepository.save(user);

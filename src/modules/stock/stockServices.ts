@@ -56,15 +56,18 @@ export class StockServices {
     limit: number = 10,
   ): Promise<{ data: Stock[]; total: number; page: number; limit: number }> => {
     const skip = (page - 1) * limit;
-    const stocks = await this.stockRepository.createQueryBuilder("stock")
+    const stocks = await this.stockRepository
+      .createQueryBuilder("stock")
       .where("stock.userId = :userId", { userId })
       .loadRelationCountAndMap("stock.medicineCount", "stock.medicines")
       .orderBy("stock.id", "DESC")
       .skip(skip)
       .take(limit)
       .getMany();
-      
-    const total = await this.stockRepository.count({ where: { user: { id: userId } } });
+
+    const total = await this.stockRepository.count({
+      where: { user: { id: userId } },
+    });
 
     return {
       data: stocks,
@@ -79,12 +82,13 @@ export class StockServices {
     id: number,
     medicineDto: MedicineDTO,
   ): Promise<Medicine> => {
-    const stock = await this.stockRepository.findOne({where: { id }});
+    const stock = await this.stockRepository.findOne({ where: { id } });
     if (!stock) {
       throw new Error("Stock not found");
     }
     const medicine = this.medicineRepository.create(medicineDto);
     medicine.stock = stock;
+    medicine.createdAt = DateUtil.nowBD();
     medicine.lastDeductedAt = DateUtil.nowBD(); // Initialize timestamp
     return await this.medicineRepository.save(medicine);
   };

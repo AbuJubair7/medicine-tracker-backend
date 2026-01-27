@@ -54,15 +54,15 @@ export class StockServices {
     limit: number = 10,
   ): Promise<{ data: Stock[]; total: number; page: number; limit: number }> => {
     const skip = (page - 1) * limit;
-    const [stocks, total] = await this.stockRepository.findAndCount({
-      where: { user: { id: userId } },
-      relations: ["medicines"],
-      skip,
-      take: limit,
-      order: {
-        id: "DESC", // Usually good to order by something consistent
-      },
-    });
+    const stocks = await this.stockRepository.createQueryBuilder("stock")
+      .where("stock.userId = :userId", { userId })
+      .loadRelationCountAndMap("stock.medicineCount", "stock.medicines")
+      .orderBy("stock.id", "DESC")
+      .skip(skip)
+      .take(limit)
+      .getMany();
+      
+    const total = await this.stockRepository.count({ where: { user: { id: userId } } });
 
     return {
       data: stocks,

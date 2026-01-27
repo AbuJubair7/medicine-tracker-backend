@@ -102,12 +102,36 @@ Stored in `src/helpers/deductionHelper.ts`. When a user fetches a stock (`GET /s
     npm install
     ```
 
-2.  **Environment Variables**
-    Create a `.env` file:
+2.  **Environment Variables (`.env`)**
+    Create a `.env` file in the root `backend/` directory.
+
+    ### Sample `.env` Architecture
     ```env
+    # --- Server Configuration ---
     PORT=3000
-    DATABASE_URL=postgres://user:pass@localhost:5432/db_name
-    JWT_SECRET=your_secret_key
+
+    # --- Database Connection (PostgreSQL) ---
+    # Connection String (Preferred)
+    DATABASE_URL=postgres://user:password@localhost:5432/medicine_tracker
+    
+    # OR Individual Params (If supported by data-source.ts)
+    # DB_HOST=localhost
+    # DB_PORT=5432
+    # DB_USERNAME=postgres
+    # DB_PASSWORD=secret
+    # DB_NAME=medicine_tracker
+
+    # --- Security (JWT) ---
+    # Secret key for signing encryption tokens. 
+    # TIP: Generate a strong random string (e.g., `openssl rand -base64 32`)
+    JWT_SECRET=super_secure_random_string_here_12345
+    
+    # Token Expiration (e.g., 1h, 7d)
+    JWT_EXPIRES_IN=7d
+
+    # --- External Services ---
+    # Google OAuth Client ID (Get this from Google Cloud Console)
+    GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
     ```
 
 3.  **Start Server**

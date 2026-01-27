@@ -32,7 +32,7 @@ export class StockServices {
   getStockById = async (id: number): Promise<Stock | null> => {
     const stock = await this.stockRepository.findOne({
       where: { id },
-      relations: ["medicines", "user"],
+      relations: ["medicines"],
     });
 
     if (stock && stock.medicines) {
@@ -48,22 +48,28 @@ export class StockServices {
   };
 
   // get stocks by user id
-  getStocksByUserId = async (userId: number): Promise<Stock[]> => {
-    const stocks = await this.stockRepository.find({
+  getStocksByUserId = async (
+    userId: number,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ data: Stock[]; total: number; page: number; limit: number }> => {
+    const skip = (page - 1) * limit;
+    const [stocks, total] = await this.stockRepository.findAndCount({
       where: { user: { id: userId } },
-      relations: ["medicines", "user"],
+      relations: ["medicines"],
+      skip,
+      take: limit,
+      order: {
+        id: "DESC", // Usually good to order by something consistent
+      },
     });
 
-    // // Process auto-deduction for all medicines
-    // for (const stock of stocks) {
-    //    if (stock.medicines) {
-    //      stock.medicines = await Promise.all(
-    //        stock.medicines.map(med => processAutoDeduction(med, this.medicineRepository))
-    //      );
-    //    }
-    // }
-
-    return stocks;
+    return {
+      data: stocks,
+      total,
+      page,
+      limit,
+    };
   };
 
   //insert medicine to stock
@@ -85,7 +91,7 @@ export class StockServices {
     // Optionally reload stock with medicines
     return await this.stockRepository.findOne({
       where: { id },
-      relations: ["medicines", "user"],
+      relations: ["medicines"],
     });
   };
 

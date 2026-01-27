@@ -44,6 +44,10 @@ export const processAutoDeduction = async (
     quantityToDeduct += countOccurrences(lastCheck, now, EVENING_TIME);
   }
 
+  if (quantityToDeduct === 0) {
+    return medicine;
+  }
+
   medicine.quantity = Math.max(0, medicine.quantity - quantityToDeduct);
   medicine.lastDeductedAt = now;
   return await medicineRepository.save(medicine);

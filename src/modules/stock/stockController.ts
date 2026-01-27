@@ -41,7 +41,13 @@ export class StockController {
       async (req: Request, res: Response) => {
         try {
           const userId = res.locals.user.id;
-          const stocks = await this.stockServices.getStocksByUserId(userId);
+          const page = Number(req.query.page) || 1;
+          const limit = Number(req.query.limit) || 10;
+          const stocks = await this.stockServices.getStocksByUserId(
+            userId,
+            page,
+            limit,
+          );
           res.json(stocks);
         } catch (error: any) {
           res.status(500).json({ error: error.message });

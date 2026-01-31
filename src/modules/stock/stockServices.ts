@@ -131,7 +131,7 @@ export class StockServices {
 
     // CRITICAL: Reset lastDeductedAt if quantity is updated manually
     if (medicineDto.quantity !== undefined) {
-      medicine.lastDeductedAt = new Date();
+      medicine.lastDeductedAt = DateUtil.nowBD();
     }
 
     return await this.medicineRepository.save(medicine);

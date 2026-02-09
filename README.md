@@ -139,6 +139,41 @@ Stored in `src/helpers/deductionHelper.ts`. When a user fetches a stock (`GET /s
     npm start
     ```
 
+## 🐳 Docker Support
+
+This project includes full **Docker** support for both development and production environments, ensuring consistency across different machines.
+
+### 1. Run with Docker Compose (Recommended)
+
+The `compose.yml` file orchestrates both the backend application and a PostgreSQL database.
+
+#### Development Mode 🛠️
+Starts the app with `nodemon` for hot-reloading and persists database data.
+```bash
+docker compose up dev
+```
+- **Backend**: `http://localhost:3000`
+- **Database**: Port `5433` (mapped to avoid conflicts with local Postgres).
+- **Hot Reload**: Changes to `src/` are reflected immediately.
+
+#### Production Mode 🚀
+Builds the optimized production image (lightweight, no dev dependencies).
+```bash
+docker compose up prod
+```
+- **Backend**: `http://localhost:3000`
+- **Optimization**: Uses multi-stage builds to keep the image size small.
+
+### 2. Dockerfile Explained
+
+The `Dockerfile` uses **Multi-Stage Builds** to optimize for size and security:
+1.  **Base**: Shared configuration (Node.js 18-alpine).
+2.  **Development**: Installs all dependencies (including dev) and runs `npm run dev`.
+3.  **Builder**: Compiles TypeScript (`npm run build`) and creates the `dist/` folder.
+4.  **Production**: Copies *only* the compiled `dist/` and production dependencies (`node_modules`) to the final image.
+
+---
+
 ## ✅ Testing (Beginner Friendly)
 
 Tests live in `src/tests/`:

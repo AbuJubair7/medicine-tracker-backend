@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+.env
+.git
+.gitignore
+.DS_Store
+npm-debug.log
+yarn-error.log
+compose.yml
+Dockerfile
+README.md
+vercel.json

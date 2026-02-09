@@ -43,6 +43,9 @@ export default async function handler(req: Request, res: Response) {
 if (require.main === module) {
   initializeApp().then(() => {
     server.listen(process.env.PORT || 3000, () => {
+      if (process.env.NODE_ENV === "development") {
+        console.log("Running in development mode with hot reload");
+      }
       console.log(`Server is running on port ${process.env.PORT || 3000}`);
     });
   });

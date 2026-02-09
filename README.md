@@ -138,3 +138,31 @@ Stored in `src/helpers/deductionHelper.ts`. When a user fetches a stock (`GET /s
     ```bash
     npm start
     ```
+
+## ✅ Testing (Beginner Friendly)
+
+Tests live in `src/tests/`:
+- `unit/` for small, isolated logic (services, middleware, helpers)
+- `integration/` for HTTP route tests using a lightweight Express app
+
+### Run All Tests
+```bash
+npm test
+```
+
+### Watch Mode (auto‑reruns on save)
+```bash
+npm run test:watch
+```
+
+### Coverage Report
+```bash
+npm run test:coverage
+```
+
+### What These Tests Do (and Don’t Do)
+- ✅ They **do not need a real database**. We mock repositories/services so you can run tests locally without setup.
+- ✅ They focus on **business logic** (like auth, validation, and service rules).
+- ✅ Integration tests confirm routes return the right status codes and responses.
+
+If a test fails, Jest will show the file and line number so you can jump straight to the broken expectation.

@@ -8,9 +8,9 @@
     "dev": "cross-env NODE_ENV=development nodemon --watch src --ext ts --exec \"npm run start:compiled\"",
     "start:compiled": "npm run build && node dist/index.js",
     "start": "node dist/index.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "cross-env TZ=UTC jest",
+    "test:watch": "cross-env TZ=UTC jest --watch",
+    "test:coverage": "cross-env TZ=UTC jest --coverage"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

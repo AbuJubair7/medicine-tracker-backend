@@ -50,6 +50,6 @@ export const processAutoDeduction = async (
   }
 
   medicine.quantity = Math.max(0, medicine.quantity - quantityToDeduct);
-  medicine.lastDeductedAt = now;
+  medicine.lastDeductedAt = DateUtil.nowBD();
   return await medicineRepository.save(medicine);
 };

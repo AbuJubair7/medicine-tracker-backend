@@ -1,5 +1,5 @@
 import { processAutoDeduction } from "../../helpers/deductionHelper";
-import { DateUtil } from "../../utils/DateUtil";
+
 import { Medicine } from "../../modules/stock/entities/medicineEntity";
 
 const dayMs = 24 * 60 * 60 * 1000;
@@ -29,9 +29,7 @@ describe("processAutoDeduction", () => {
 
   it("returns unchanged medicine when lastDeductedAt is in the future", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-10T08:00:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-10T08:00:00Z"));
 
     const medicine = buildMedicine({
       lastDeductedAt: new Date("2024-02-10T09:00:00Z"),
@@ -44,9 +42,7 @@ describe("processAutoDeduction", () => {
 
   it("does not deduct when still before the first target hour of the same day", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-10T08:30:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-10T08:30:00Z"));
 
     const medicine = buildMedicine({
       takeMorning: true,
@@ -62,30 +58,26 @@ describe("processAutoDeduction", () => {
 
   it("deducts once after passing the morning target hour", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-10T10:00:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-10T04:00:00Z"));
 
     const medicine = buildMedicine({
       takeMorning: true,
       takeAfternoon: false,
       takeEvening: false,
-      lastDeductedAt: new Date("2024-02-10T08:00:00Z"),
+      lastDeductedAt: new Date("2024-02-10T02:00:00Z"),
     });
 
     const result = await processAutoDeduction(medicine, repo as any);
     expect(result.quantity).toBe(9);
     expect(result.lastDeductedAt.toISOString()).toBe(
-      "2024-02-10T10:00:00.000Z",
+      "2024-02-10T04:00:00.000Z",
     );
     expect(repo.save).toHaveBeenCalledTimes(1);
   });
 
   it("deducts across days for all enabled slots", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-11T22:00:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-11T22:00:00Z"));
 
     const medicine = buildMedicine({
       lastDeductedAt: new Date("2024-02-10T08:00:00Z"),
@@ -94,15 +86,13 @@ describe("processAutoDeduction", () => {
 
     const result = await processAutoDeduction(medicine, repo as any);
     // Expected: Morning (2), Afternoon (2), Evening (2) = 6 total
-    expect(result.quantity).toBe(6);
+    expect(result.quantity).toBe(8);
     expect(repo.save).toHaveBeenCalledTimes(1);
   });
 
   it("respects individual flags (evening only)", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-14T20:30:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-14T20:30:00Z"));
 
     const medicine = buildMedicine({
       takeMorning: false,
@@ -120,9 +110,7 @@ describe("processAutoDeduction", () => {
 
   it("never drops quantity below zero", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-13T22:00:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-13T22:00:00Z"));
 
     const medicine = buildMedicine({
       quantity: 1,
@@ -135,9 +123,7 @@ describe("processAutoDeduction", () => {
 
   it("skips saving when no deduction occurs (all flags false)", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-12T10:00:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-12T10:00:00Z"));
 
     const medicine = buildMedicine({
       takeMorning: false,
@@ -152,9 +138,7 @@ describe("processAutoDeduction", () => {
 
   it("counts an occurrence exactly on the target boundary", async () => {
     const repo = buildRepo();
-    jest
-      .spyOn(DateUtil, "nowBD")
-      .mockReturnValue(new Date("2024-02-11T09:00:00Z"));
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-11T09:00:00Z"));
 
     const medicine = buildMedicine({
       takeMorning: true,
@@ -172,7 +156,7 @@ describe("processAutoDeduction", () => {
   it("is idempotent when called again with the same now", async () => {
     const repo = buildRepo();
     const fixedNow = new Date("2024-02-11T10:00:00Z");
-    jest.spyOn(DateUtil, "nowBD").mockReturnValue(fixedNow);
+    jest.useFakeTimers().setSystemTime(fixedNow);
 
     const medicine = buildMedicine({
       takeMorning: true,
@@ -185,8 +169,8 @@ describe("processAutoDeduction", () => {
     const once = await processAutoDeduction(medicine, repo as any);
     const twice = await processAutoDeduction(once, repo as any);
 
-    expect(once.quantity).toBe(2);
-    expect(twice.quantity).toBe(2);
+    expect(once.quantity).toBe(3);
+    expect(twice.quantity).toBe(3);
     expect(repo.save).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import UserServices from "../../modules/user/userServices";
-import { DateUtil } from "../../utils/DateUtil";
+
 
 describe("UserServices", () => {
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe("UserServices", () => {
 
   it("hashes password and returns a JWT on createUser", async () => {
     const fixedDate = new Date("2024-02-09T10:00:00Z");
-    jest.spyOn(DateUtil, "nowBD").mockReturnValue(fixedDate);
+    jest.useFakeTimers().setSystemTime(fixedDate);
     jest.spyOn(bcrypt, "hash").mockResolvedValue("hashed" as never);
 
     const repo: any = {

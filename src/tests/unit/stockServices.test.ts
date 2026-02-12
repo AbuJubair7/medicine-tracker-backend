@@ -1,5 +1,5 @@
 import { StockServices } from "../../modules/stock/stockServices";
-import { DateUtil } from "../../utils/DateUtil";
+
 
 describe("StockServices", () => {
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe("StockServices", () => {
 
   it("resets lastDeductedAt when quantity is updated", async () => {
     const fixedDate = new Date("2024-02-10T10:00:00Z");
-    jest.spyOn(DateUtil, "nowBD").mockReturnValue(fixedDate);
+    jest.useFakeTimers().setSystemTime(fixedDate);
 
     const medicine = {
       id: 1,
@@ -40,13 +40,13 @@ describe("StockServices", () => {
     const result = await services.updateMedicineInStock(1, { quantity: 5 });
 
     expect(result?.quantity).toBe(5);
-    expect(result?.lastDeductedAt).toBe(fixedDate);
+    expect(result?.lastDeductedAt).toEqual(fixedDate);
     expect(medicineRepo.save).toHaveBeenCalledWith(medicine);
   });
 
   it("does not reset lastDeductedAt when quantity is not updated", async () => {
-    const nowSpy = jest.spyOn(DateUtil, "nowBD");
     const originalDate = new Date("2024-02-01T10:00:00Z");
+    jest.useFakeTimers().setSystemTime(new Date("2024-02-15T10:00:00Z")); // Some future date
     const medicine = {
       id: 1,
       name: "Med",
@@ -64,13 +64,13 @@ describe("StockServices", () => {
     const services = new StockServices(stockRepo, medicineRepo);
     const result = await services.updateMedicineInStock(1, { name: "New" });
 
-    expect(result?.lastDeductedAt).toBe(originalDate);
-    expect(nowSpy).not.toHaveBeenCalled();
+    expect(result?.lastDeductedAt).toEqual(originalDate);
+    jest.useRealTimers();
   });
 
   it("creates medicine and sets timestamps on insertMedicineToStock", async () => {
     const fixedDate = new Date("2024-02-12T08:00:00Z");
-    jest.spyOn(DateUtil, "nowBD").mockReturnValue(fixedDate);
+    jest.useFakeTimers().setSystemTime(fixedDate);
 
     const stock = { id: 7 };
 

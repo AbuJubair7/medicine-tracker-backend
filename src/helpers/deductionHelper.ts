@@ -1,6 +1,5 @@
 import { Repository } from "typeorm";
 import { Medicine } from "../modules/stock/entities/medicineEntity";
-import { DateUtil } from "../utils/DateUtil";
 
 const MORNING_TIME = 9;
 const AFTERNOON_TIME = 14;
@@ -10,7 +9,7 @@ export const processAutoDeduction = async (
   medicine: Medicine,
   medicineRepository: Repository<Medicine>,
 ): Promise<Medicine> => {
-  const now = DateUtil.nowBD();
+  const now = new Date();
   const lastCheck = new Date(medicine.lastDeductedAt);
 
   if (lastCheck >= now) return medicine;
@@ -50,6 +49,6 @@ export const processAutoDeduction = async (
   }
 
   medicine.quantity = Math.max(0, medicine.quantity - quantityToDeduct);
-  medicine.lastDeductedAt = DateUtil.nowBD();
+  medicine.lastDeductedAt = new Date();
   return await medicineRepository.save(medicine);
 };

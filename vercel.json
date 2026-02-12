@@ -1,4 +1,12 @@
 {
   "version": 2,
-  "rewrites": [{ "source": "/(.*)", "destination": "src/index.ts" }]
+  "env": {
+    "TZ": "Asia/Dhaka"
+  },
+  "rewrites": [
+    { 
+      "source": "/(.*)", 
+      "destination": "dist/index.js" 
+    }
+  ]
 }

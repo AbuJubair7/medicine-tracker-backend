@@ -5,7 +5,6 @@ import { User } from "../user/entities/userEntity";
 import { MedicineDTO } from "./dto/medicine.dto";
 import { Medicine } from "./entities/medicineEntity";
 import { processAutoDeduction } from "../../helpers/deductionHelper";
-import { DateUtil } from "../../utils/DateUtil";
 
 export class StockServices {
   constructor(
@@ -26,7 +25,7 @@ export class StockServices {
       throw new Error("User not found");
     }
     newStock.user = user;
-    newStock.createdAt = DateUtil.nowBD();
+    newStock.createdAt = new Date();
     return await this.stockRepository.save(newStock);
   };
 
@@ -88,8 +87,8 @@ export class StockServices {
     }
     const medicine = this.medicineRepository.create(medicineDto);
     medicine.stock = stock;
-    medicine.createdAt = DateUtil.nowBD();
-    medicine.lastDeductedAt = DateUtil.nowBD(); // Initialize timestamp
+    medicine.createdAt = new Date();
+    medicine.lastDeductedAt = new Date(); // Initialize timestamp
     return await this.medicineRepository.save(medicine);
   };
 
@@ -131,7 +130,7 @@ export class StockServices {
 
     // CRITICAL: Reset lastDeductedAt if quantity is updated manually
     if (medicineDto.quantity !== undefined) {
-      medicine.lastDeductedAt = DateUtil.nowBD();
+      medicine.lastDeductedAt = new Date();
     }
 
     return await this.medicineRepository.save(medicine);

@@ -1,5 +1,7 @@
 FROM node:18-alpine AS base
 WORKDIR /app
+# Install tzdata for timezone support
+RUN apk add --no-cache tzdata
 COPY package*.json ./
 
 FROM base AS development

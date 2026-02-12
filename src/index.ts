@@ -1,3 +1,4 @@
+process.env.TZ = 'Asia/Dhaka'; // for vercel deployment
 import "reflect-metadata";
 import { server, routes, controllers } from "./main";
 import express from "express";

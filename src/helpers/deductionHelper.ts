@@ -1,14 +1,18 @@
 import { Repository } from "typeorm";
 import { Medicine } from "../modules/stock/entities/medicineEntity";
 
-const MORNING_TIME = 9;
-const AFTERNOON_TIME = 14;
-const EVENING_TIME = 21;
+var MORNING_TIME: number = 9;
+var AFTERNOON_TIME: number = 14;
+var EVENING_TIME: number = 21;
 
 export const processAutoDeduction = async (
   medicine: Medicine,
   medicineRepository: Repository<Medicine>,
 ): Promise<Medicine> => {
+  MORNING_TIME = medicine.morningTime || MORNING_TIME;
+  AFTERNOON_TIME = medicine.afternoonTime || AFTERNOON_TIME;
+  EVENING_TIME = medicine.eveningTime || EVENING_TIME;
+
   const now = new Date();
   const lastCheck = new Date(medicine.lastDeductedAt);
 

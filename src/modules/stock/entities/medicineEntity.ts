@@ -25,11 +25,20 @@ export class Medicine {
   @Column({ type: "boolean", default: true })
   takeMorning!: boolean;
 
+  @Column({ type: "int", default: 9 })
+  morningTime!: number;
+
   @Column({ type: "boolean", default: true })
   takeAfternoon!: boolean;
 
+  @Column({ type: "int", default: 14 })
+  afternoonTime!: number;
+
   @Column({ type: "boolean", default: true })
   takeEvening!: boolean;
+
+  @Column({ type: "int", default: 21 })
+  eveningTime!: number;
 
   @CreateDateColumn()
   createdAt!: Date;

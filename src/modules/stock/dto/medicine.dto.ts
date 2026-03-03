@@ -1,4 +1,4 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsPositive } from "class-validator";
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsPositive, Max, Min } from "class-validator";
 
 export class MedicineDTO {
   @IsNotEmpty()
@@ -17,12 +17,30 @@ export class MedicineDTO {
   @IsBoolean()
   takeMorning?: boolean;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(6)
+  @Max(11)
+  morningTime?: number;
+
   @IsNotEmpty()
   @IsBoolean()
   takeAfternoon?: boolean;
 
+  @IsOptional()
+  @IsNumber()
+  @Min(12)
+  @Max(18)
+  afternoonTime?: number;
+
   @IsNotEmpty()
   @IsBoolean()
   takeEvening?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(19)
+  @Max(23)
+  eveningTime?: number;
 
 }

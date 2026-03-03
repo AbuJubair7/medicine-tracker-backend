@@ -55,7 +55,7 @@ export class StockServices {
     limit: number = 10,
   ): Promise<{ data: Stock[]; total: number; page: number; limit: number }> => {
     const skip = (page - 1) * limit;
-    const stocks = await this.stockRepository
+    const stocks = this.stockRepository
       .createQueryBuilder("stock")
       .where("stock.userId = :userId", { userId })
       .loadRelationCountAndMap("stock.medicineCount", "stock.medicines")
@@ -64,12 +64,12 @@ export class StockServices {
       .take(limit)
       .getMany();
 
-    const total = await this.stockRepository.count({
+    const cnt = this.stockRepository.count({
       where: { user: { id: userId } },
     });
-
+    const [data, total] = await Promise.all([stocks, cnt]);
     return {
-      data: stocks,
+      data,
       total,
       page,
       limit,
